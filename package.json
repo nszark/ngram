@@ -1,6 +1,6 @@
 {
-  "name": "nodejs-express-mongoose-demo",
-  "description": "A demo app illustrating the usage of express, mongoose, passportjs, pug and other modules in nodejs",
+  "name": "ngram",
+  "description": "A pet project to explore the possibilities of Javascript and Node.js",
   "keywords": [
     "express",
     "mongoose",
@@ -10,10 +10,10 @@
   ],
   "version": "4.0.0",
   "private": false,
-  "author": "Madhusudhan Srinivasa <madhums8@gmail.com> (http://madhums.github.com)",
+  "author": "Nazar Semkiv",
   "repository": {
     "type": "git",
-    "url": "https://github.com/madhums/node-express-mongoose-demo.git"
+    "url": "https://github.com/nszark/ngram.git"
   },
   "license": "MIT",
   "engines": {

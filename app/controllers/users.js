@@ -7,6 +7,7 @@
 const mongoose = require('mongoose');
 const { wrap: async } = require('co');
 const User = mongoose.model('User');
+const Article = mongoose.model('Article');
 
 /**
  * Load
@@ -53,13 +54,28 @@ exports.create = async(function*(req, res) {
  *  Show profile
  */
 
-exports.show = function(req, res) {
+exports.show = async(function*(req, res) {
+  
   const user = req.profile;
-  res.render('users/show', {
+  const criteria = { user: user._id };
+  const page = (req.params.page > 0 ? req.params.page : 1) - 1;
+  const limit = 30;
+  const options = {
+    limit: limit,
+    page: page,
+    criteria: criteria
+  };
+
+  const articles = yield Article.list(options);
+  const count = yield Article.countDocuments(criteria);
+
+  res.render('articles/index', {
     title: user.name,
-    user: user
+    articles: articles,
+    page: page + 1,
+    pages: Math.ceil(count / limit)
   });
-};
+});
 
 exports.signin = function() {};
 
