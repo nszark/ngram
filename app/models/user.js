@@ -8,7 +8,6 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const Schema = mongoose.Schema;
-const oAuthTypes = ['github', 'twitter', 'google', 'linkedin'];
 
 /**
  * User Schema
@@ -21,10 +20,6 @@ const UserSchema = new Schema({
   provider: { type: String, default: '' },
   hashed_password: { type: String, default: '' },
   authToken: { type: String, default: '' },
-  twitter: {},
-  github: {},
-  google: {},
-  linkedin: {}
 });
 
 const validatePresenceOf = value => value && value.length;
@@ -132,9 +127,6 @@ UserSchema.methods = {
    * Validation is not required if using OAuth
    */
 
-  skipValidation: function() {
-    return ~oAuthTypes.indexOf(this.provider);
-  }
 };
 
 /**
