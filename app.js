@@ -1,95 +1,105 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const { v4: uuidv4 } = require('uuid');
+const express = require("express");
+const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
+const createRoutes = require("./config/routes");
+const Article = require("./models/article.model");
+
+const port = 3666;
 
 const app = express();
-
-function handleError(err) {
-  return err;
-}
-
-mongoose.connect('mongodb://0.0.0.0:27017/ngram');
-
-const userSchema = new mongoose.Schema({
-  id: String,
-  fullName: String,
-  username: String,
-  hashedPassword: String,
-});
-
-const articleSchema = new mongoose.Schema({
-  id: String,
-  userid: String,
-  head: String,
-  body: String,
-});
-
-const User = mongoose.model('user', userSchema);
-const Article = mongoose.model('article', articleSchema);
-
-const createRoutes = require('./config/routes');
-
+app.use(express.json());
 createRoutes(app);
 
-app.use(express.json());
+function handleError(err) {
+	return err;
+}
 
-app.get('/', (req, res) => {
-  User.find({}, (err, person) => {
-    if (err) return handleError(err);
-    return res.status(200).send(person);
-  });
+mongoose.connect("mongodb://127.0.0.1:27017/ngram");
+
+const userSchema = new mongoose.Schema({
+	id: String,
+	fullName: String,
+	username: String,
+	hashedPassword: String,
 });
 
-app.get('/user/:id', (req, res) => {
-  const idRequest = req.params.id;
+// const articleSchema = new mongoose.Schema({
+// 	id: String,
+// 	userid: String,
+// 	head: String,
+// 	body: String,
+// });
 
-  User.find({ id: idRequest }, (err, person) => {
-    if (err) return handleError(err);
-    return res.status(200).send(person);
-  });
+const User = mongoose.model("user", userSchema);
+// const Article = mongoose.model("article", articleSchema);
+
+app.get("/", (req, res) => {
+	User.find({}, (err, person) => {
+		if (err) return handleError(err);
+		return res.status(200).send(person);
+	});
 });
 
-app.get('/article/:id', (req, res) => {
-  const idRequest = req.params.id;
-  Article.find({ id: idRequest }, (err, articlePost) => {
-    if (err) return handleError(err);
-    return res.status(200).send(articlePost);
-  });
+app.get("/user/:id", (req, res) => {
+	const idRequest = req.params.id;
+
+	User.find({ id: idRequest }, (err, person) => {
+		if (err) return handleError(err);
+		return res.status(200).send(person);
+	});
 });
 
-app.post('/user/add', (req, res) => {
-  const userRequest = req.body;
-  const newUser = new User({
-    id: uuidv4(),
-    fullName: userRequest.fullName,
-    username: userRequest.username,
-    hashedPassword: userRequest.hashedPassword,
-  });
-  newUser.save((err) => {
-    if (err) return handleError(err);
-    return res.status(200).send('Done!');
-  });
+app.get("/article/:id", (req, res) => {
+	const idRequest = req.params.id;
+	Article.find({ id: idRequest }, (err, articlePost) => {
+		if (err) return handleError(err);
+		return res.status(200).send(articlePost);
+	});
 });
 
-app.put('/user/:id/update', (req, res) => {
-  const userRequest = req.body;
-  const idRequest = req.params.id;
-  User.updateOne({ id: idRequest }, {
-    fullName: userRequest.fullName,
-    username: userRequest.username,
-    hashedPassword: userRequest.hashedPassword,
-  }, (err, person) => {
-    if (err) return handleError(err);
-    return res.status(200).send(person);
-  });
+app.post("/user/add", (req, res) => {
+	const userRequest = req.body;
+	const newUser = new User({
+		id: uuidv4(),
+		fullName: userRequest.fullName,
+		username: userRequest.username,
+		hashedPassword: userRequest.hashedPassword,
+	});
+	newUser.save((err) => {
+		if (err) return handleError(err);
+		return res.status(200).send("Done!");
+	});
 });
 
-app.delete('/user/:id/delete', (req, res) => {
-  const idRequest = req.params.id;
-  User.deleteOne({ id: idRequest }, (err, person) => {
-    if (err) return handleError(err);
-    return res.status(200).send(person);
-  });
+app.put("/user/:id/update", (req, res) => {
+	const userRequest = req.body;
+	const idRequest = req.params.id;
+	User.updateOne(
+		{ id: idRequest },
+		{
+			fullName: userRequest.fullName,
+			username: userRequest.username,
+			hashedPassword: userRequest.hashedPassword,
+		},
+		(err, person) => {
+			if (err) return handleError(err);
+			return res.status(200).send(person);
+		}
+	);
 });
 
-app.listen(5000);
+app.delete("/user/:id/delete", (req, res) => {
+	const idRequest = req.params.id;
+	User.deleteOne({ id: idRequest }, (err, person) => {
+		if (err) return handleError(err);
+		return res.status(200).send(person);
+	});
+});
+
+app.listen(port, () => {
+	console.log(`Server successfully started on port ${port}.`);
+});
+
+module.exports = {
+	Article,
+};
