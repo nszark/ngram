@@ -7,7 +7,7 @@ function handleError(err) {
   return err;
 }
 
-exports.new = async (req, res) => {
+const create = async (req, res) => {
   const userRequest = req.body;
   console.log(userRequest);
   const newArticle = new Article({
@@ -19,7 +19,7 @@ exports.new = async (req, res) => {
   });
 };
 
-exports.edit = async (req, res) => {
+const edit = async (req, res) => {
   const userRequest = req.body;
   const idRequest = req.params.articleid;
   Article.updateOne({ id: idRequest }, {
@@ -32,10 +32,16 @@ exports.edit = async (req, res) => {
   });
 };
 
-exports.delete = async (req, res) => {
+const remove = async (req, res) => {
   const idRequest = req.params.articleid;
   Article.deleteOne({ id: idRequest }, (err, articlePost) => {
     if (err) return handleError(err);
     return res.status(200).send(articlePost);
   });
+};
+
+module.exports = {
+  edit,
+  create,
+  remove,
 };

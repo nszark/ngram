@@ -27,7 +27,9 @@ const articleSchema = new mongoose.Schema({
 const User = mongoose.model('user', userSchema);
 const Article = mongoose.model('article', articleSchema);
 
-require('./config/routes')(app);
+const createRoutes = require('./config/routes');
+
+createRoutes(app);
 
 app.use(express.json());
 
