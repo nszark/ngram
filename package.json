@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/nszark/ngram#readme",
   "dependencies": {
+    "async": "^3.2.4",
     "crypto": "^1.0.1",
     "express": "^4.18.2",
     "mongoose": "^6.7.2",

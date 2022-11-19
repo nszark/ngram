@@ -27,6 +27,8 @@ const articleSchema = new mongoose.Schema({
 const User = mongoose.model('user', userSchema);
 const Article = mongoose.model('article', articleSchema);
 
+require('./config/routes')(app);
+
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -47,7 +49,6 @@ app.get('/user/:id', (req, res) => {
 
 app.get('/article/:id', (req, res) => {
   const idRequest = req.params.id;
-
   Article.find({ id: idRequest }, (err, articlePost) => {
     if (err) return handleError(err);
     return res.status(200).send(articlePost);
@@ -71,7 +72,6 @@ app.post('/user/add', (req, res) => {
 app.put('/user/:id/update', (req, res) => {
   const userRequest = req.body;
   const idRequest = req.params.id;
-
   User.updateOne({ id: idRequest }, {
     fullName: userRequest.fullName,
     username: userRequest.username,
@@ -84,45 +84,9 @@ app.put('/user/:id/update', (req, res) => {
 
 app.delete('/user/:id/delete', (req, res) => {
   const idRequest = req.params.id;
-
   User.deleteOne({ id: idRequest }, (err, person) => {
     if (err) return handleError(err);
     return res.status(200).send(person);
-  });
-});
-
-app.post('/article/add', (req, res) => {
-  const userRequest = req.body;
-  const newArticle = new Article({
-    id: uuidv4(),
-    userid: userRequest.userid,
-    head: userRequest.head,
-    body: userRequest.body,
-  });
-  newArticle.save((err) => {
-    if (err) return handleError(err);
-    return res.status(200).send('Done!');
-  });
-});
-
-app.put('/article/:articleid/update', (req, res) => {
-  const userRequest = req.body;
-  const idRequest = req.params.articleid;
-  Article.updateOne({ id: idRequest }, {
-    userid: userRequest.userid,
-    head: userRequest.head,
-    body: userRequest.body,
-  }, (err, articlePost) => {
-    if (err) return handleError(err);
-    return res.status(200).send(articlePost);
-  });
-});
-
-app.delete('/article/:articleid/delete', (req, res) => {
-  const idRequest = req.params.articleid;
-  Article.deleteOne({ id: idRequest }, (err, articlePost) => {
-    if (err) return handleError(err);
-    return res.status(200).send(articlePost);
   });
 });
 
