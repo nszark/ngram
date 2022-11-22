@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const createRoutes = require('./config/routes');
-const Article = require('./models/article.model');
+const createRoutes = require('.src/config/routes');
 
 const port = 5000;
 
@@ -14,7 +13,3 @@ mongoose.connect('mongodb://127.0.0.1:27017/ngram');
 app.listen(port, () => {
   console.log(`Server successfully started on port ${port}.`);
 });
-
-module.exports = {
-  Article,
-};
