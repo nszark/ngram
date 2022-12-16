@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const User = require('../models/user.model');
 
@@ -18,20 +19,6 @@ const view = async (req, res) => {
   User.find({ id: idRequest }, (err, person) => {
     if (err) return handleError(err);
     return res.status(200).send(person);
-  });
-};
-
-const create = async (req, res) => {
-  const userRequest = req.body;
-  const newUser = new User({
-    id: uuidv4(),
-    fullName: userRequest.fullName,
-    username: userRequest.username,
-    hashedPassword: userRequest.hashedPassword,
-  });
-  newUser.save((err) => {
-    if (err) return handleError(err);
-    return res.status(200).send('Done!');
   });
 };
 
@@ -60,10 +47,49 @@ const remove = async (req, res) => {
   });
 };
 
+const checkEmail = async (req, res, next) => {
+  const emailReq = req.body.email;
+  const emailPerson = User.find({ email: emailReq }, (err, person) => {
+    if (err) return res.status(404);
+    return person;
+  });
+  if (emailPerson != null) next();
+  return res.status(404);
+};
+
+const addToDatabase = async (req, res) => {
+  const signupInfo = req.body;
+  const newUser = new User({
+    id: uuidv4(),
+    email: signupInfo.email,
+    password: signupInfo.password,
+  });
+  newUser.save((err) => {
+    if (err) return handleError(err);
+    return res.status(200).send('Done!');
+  });
+};
+
+const login = async (req, res, next) => {
+  const loginInfo = req.body;
+  const loginPerson = User.find(
+    { email: loginInfo.email, password: loginInfo.password },
+    (err, person) => {
+      if (err) return res.status(404);
+      return person;
+    },
+  );
+  // generate web token + return it
+  if (loginPerson !== null) next();
+  return res.status(404);
+};
+
 module.exports = {
   viewAll,
   view,
-  create,
+  login,
+  checkEmail,
+  addToDatabase,
   edit,
   remove,
 };

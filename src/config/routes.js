@@ -4,7 +4,11 @@ const users = require('../app/users');
 module.exports = (app) => {
   app.get('/', users.viewAll);
   app.get('/user/:id', users.view);
-  app.post('/user/add', users.create);
+  // to do
+  app.get('/me', users.authenticate, users.showMe);
+  app.post('/signup', users.checkEmail, users.addToDatabase);
+  app.post('/login', users.login);
+  //
   app.put('/user/:id/update', users.edit);
   app.delete('/user/:id/delete', users.remove);
 
