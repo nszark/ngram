@@ -5,8 +5,8 @@ module.exports = (app) => {
   app.get('/', users.viewAll);
   app.get('/user/:id', users.view);
   // to do
-  app.get('/me', users.authenticate, users.showMe);
-  app.post('/signup', users.checkEmail, users.addToDatabase);
+  app.get('/me', users.authenticate);
+  app.post('/signup', users.signup);
   app.post('/login', users.login);
   //
   app.put('/user/:id/update', users.edit);
