@@ -9,8 +9,8 @@ module.exports = (app) => {
   app.post('/signup', users.signup);
   app.post('/login', users.login);
   //
-  app.put('/user/:id/update', users.edit);
-  app.delete('/user/:id/delete', users.remove);
+  app.put('/user/update', users.edit);
+  app.delete('/user/delete', users.remove);
 
   app.get('/article/:articleid', articles.view);
   app.post('/article/add', articles.create);

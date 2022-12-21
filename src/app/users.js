@@ -4,10 +4,6 @@ const User = require('../models/user.model');
 
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 
-function handleError(err) {
-  return err;
-}
-
 const viewAll = async (req, res) => {
   try {
     const users = await User.find({}).exec();
@@ -35,72 +31,98 @@ const view = async (req, res) => {
 };
 
 const edit = async (req, res) => {
-  const userRequest = req.body;
-  const idRequest = req.params.id;
-  User.updateOne(
-    { id: idRequest },
-    {
-      fullName: userRequest.fullName,
-      username: userRequest.username,
-      hashedPassword: userRequest.hashedPassword,
-    },
-    (err, person) => {
-      if (err) return handleError(err);
-      return res.status(200).send(person);
-    },
-  );
+  const {
+    fullName, username, hashedPassword, idRequest,
+  } = req.body;
+
+  try {
+    const user = await User.updateOne(
+      { id: idRequest },
+      { fullName, username, hashedPassword },
+    ).exec();
+    return res.status(200).send(user.acknowledged);
+  } catch (err) {
+    console.error('view error', err);
+    return res.status(500).send({
+      message: 'My obosralis`.',
+    });
+  }
 };
 
 const remove = async (req, res) => {
-  const idRequest = req.params.id;
-  User.deleteOne({ id: idRequest }, (err, person) => {
-    if (err) return handleError(err);
-    return res.status(200).send(person);
-  });
+  const { idRequest } = req.body;
+  try {
+    const user = await User.deleteOne({ id: idRequest }).exec();
+    return res.status(200).send(user.acknowledged);
+  } catch (err) {
+    console.error('view error', err);
+    return res.status(500).send({
+      message: 'My obosralis`.',
+    });
+  }
 };
 
 const signup = async (req, res) => {
   const { email, password } = req.body;
-  const emailPerson = User.findOne({ email }, (err, person) => {
-    if (err) return res.status(404);
-    return person;
-  });
-  if (emailPerson === null) return res.status(404);
-  const newUser = new User({
-    id: uuidv4(),
-    email,
-    password,
-  });
-  const token = jwt.sign({ email, password }, jwtSecretKey);
-  newUser.save((err) => {
-    if (err) return res.status(404);
+
+  try {
+    const emailPerson = await User.findOne({ email }).exec();
+    if (emailPerson !== null) return res.status(404);
+  } catch (err) {
+    console.error('view error', err);
+    return res.status(500).send({
+      message: 'My obosralis`.',
+    });
+  }
+
+  try {
+    const newUser = new User({
+      id: uuidv4(),
+      email,
+      password,
+    });
+    await newUser.save();
+    const token = jwt.sign({ email, password }, jwtSecretKey);
     return res.status(200).send(`Here is your --> ${token} <--`);
-  });
+  } catch (err) {
+    console.error('view error', err);
+    return res.status(500).send({
+      message: 'My obosralis`.',
+    });
+  }
 };
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  const loginPerson = User.find({ email, password }, (err, person) => {
-    if (err) return res.status(404);
-    return person;
-  });
-  const token = jwt.sign({ email, password }, jwtSecretKey);
-  if (loginPerson == null) return res.status(404);
-  return res.status(200).send(`Here is your --> ${token} <--`);
+  try {
+    const loginPerson = User.find({ email, password }).exec();
+    if (loginPerson == null) return res.status(404);
+    const token = jwt.sign({ email, password }, jwtSecretKey);
+    return res.status(200).send(`Here is your --> ${token} <--`);
+  } catch (err) {
+    console.error('view error', err);
+    return res.status(500).send({
+      message: 'My obosralis`.',
+    });
+  }
 };
 
 const authenticate = async (req, res) => {
-  const { token } = req.body;
-  const email = jwt.verify(token, jwtSecretKey, (err, decoded) => {
-    if (err) return res.status(401);
-    return decoded.email;
-  });
-  const emailPerson = User.find({ email }, (err, person) => {
-    if (err) return res.status(404);
-    return person;
-  });
-  if (emailPerson == null) return res.status(404);
-  return res.status(200).send(`This is ${email}'s webpage.`);
+  const { token } = req.header;
+  try {
+    const email = jwt.verify(token, jwtSecretKey, (err, decoded) => {
+      if (err) return res.status(401);
+      return decoded.email;
+    });
+    const emailPerson = await User.findOne({ email }).exec();
+    if (emailPerson == null) return res.status(404);
+    return res.status(200).send(`This is ${email}'s webpage.`);
+  } catch (err) {
+    console.error('view error', err);
+    return res.status(500).send({
+      message: 'My obosralis`.',
+    });
+  }
 };
 
 module.exports = {
