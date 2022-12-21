@@ -4,8 +4,8 @@
   "description": "A pet project for learning how to work with Node.js and various systems and modules",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "test": "node app.js"
+    "start": "node src/app.js",
+    "test": "node src/app.js"
   },
   "repository": {
     "type": "git",

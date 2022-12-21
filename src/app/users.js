@@ -9,19 +9,29 @@ function handleError(err) {
 }
 
 const viewAll = async (req, res) => {
-  User.find({}, (err, person) => {
-    if (err) return handleError(err);
-    return res.status(200).send(person);
-  });
+  try {
+    const users = await User.find({}).exec();
+    return res.status(200).send(users);
+  } catch (err) {
+    console.error('viewAll error', err);
+    return res.status(500).send({
+      message: 'My obosralis`.',
+    });
+  }
 };
 
 const view = async (req, res) => {
   const idRequest = req.params.id;
 
-  User.find({ id: idRequest }, (err, person) => {
-    if (err) return handleError(err);
-    return res.status(200).send(person);
-  });
+  try {
+    const user = await User.findOne({ id: idRequest }).exec();
+    return res.status(200).send(user);
+  } catch (err) {
+    console.error('view error', err);
+    return res.status(500).send({
+      message: 'My obosralis`.',
+    });
+  }
 };
 
 const edit = async (req, res) => {
@@ -51,7 +61,7 @@ const remove = async (req, res) => {
 
 const signup = async (req, res) => {
   const { email, password } = req.body;
-  const emailPerson = User.find({ email }, (err, person) => {
+  const emailPerson = User.findOne({ email }, (err, person) => {
     if (err) return res.status(404);
     return person;
   });
@@ -70,13 +80,10 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  const loginPerson = User.find(
-    { email, password },
-    (err, person) => {
-      if (err) return res.status(404);
-      return person;
-    },
-  );
+  const loginPerson = User.find({ email, password }, (err, person) => {
+    if (err) return res.status(404);
+    return person;
+  });
   const token = jwt.sign({ email, password }, jwtSecretKey);
   if (loginPerson == null) return res.status(404);
   return res.status(200).send(`Here is your --> ${token} <--`);
