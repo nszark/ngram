@@ -1,11 +1,12 @@
 const articles = require('../app/articles');
 const users = require('../app/users');
+const authMiddleware = require('../middlewares/auth-middleware');
 
 module.exports = (app) => {
   app.get('/', users.viewAll);
   app.get('/user/:id', users.view);
   // to do
-  app.get('/me', users.authenticate);
+  app.get('/me', authMiddleware.authenticate, users.viewAll);
   app.post('/signup', users.signup);
   app.post('/login', users.login);
   //

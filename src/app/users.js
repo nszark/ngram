@@ -1,7 +1,11 @@
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const bcrypt = require('bcrypt');
+require('dotenv').config();
+
 const User = require('../models/user.model');
 
+const saltRounds = 10;
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 
 const viewAll = async (req, res) => {
@@ -32,9 +36,9 @@ const view = async (req, res) => {
 
 const edit = async (req, res) => {
   const {
-    fullName, username, hashedPassword, idRequest,
+    fullName, username, password, idRequest,
   } = req.body;
-
+  const hashedPassword = bcrypt.hashSync(password, saltRounds);
   try {
     const user = await User.updateOne(
       { id: idRequest },
@@ -63,26 +67,25 @@ const remove = async (req, res) => {
 };
 
 const signup = async (req, res) => {
-  const { email, password } = req.body;
+  const {
+    email, password, fullName, username,
+  } = req.body;
 
+  console.log(email);
   try {
     const emailPerson = await User.findOne({ email }).exec();
-    if (emailPerson !== null) return res.status(404);
-  } catch (err) {
-    console.error('view error', err);
-    return res.status(500).send({
-      message: 'My obosralis`.',
-    });
-  }
-
-  try {
+    console.log(emailPerson);
+    if (emailPerson !== null) return res.status(404).send('Email already exists in system.');
+    const hashedPassword = bcrypt.hashSync(password, saltRounds);
     const newUser = new User({
       id: uuidv4(),
       email,
-      password,
+      hashedPassword,
+      fullName,
+      username,
     });
     await newUser.save();
-    const token = jwt.sign({ email, password }, jwtSecretKey);
+    const token = jwt.sign({ email, hashedPassword }, jwtSecretKey);
     return res.status(200).send(`Here is your --> ${token} <--`);
   } catch (err) {
     console.error('view error', err);
@@ -94,29 +97,12 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
+  const hashedPassword = bcrypt.hashSync(password, saltRounds);
   try {
-    const loginPerson = User.find({ email, password }).exec();
-    if (loginPerson == null) return res.status(404);
-    const token = jwt.sign({ email, password }, jwtSecretKey);
+    const loginPerson = User.find({ email, hashedPassword }).exec();
+    if (loginPerson == null) return res.status(404).send('Person already exists.');
+    const token = jwt.sign({ email, hashedPassword }, jwtSecretKey);
     return res.status(200).send(`Here is your --> ${token} <--`);
-  } catch (err) {
-    console.error('view error', err);
-    return res.status(500).send({
-      message: 'My obosralis`.',
-    });
-  }
-};
-
-const authenticate = async (req, res) => {
-  const { token } = req.header;
-  try {
-    const email = jwt.verify(token, jwtSecretKey, (err, decoded) => {
-      if (err) return res.status(401);
-      return decoded.email;
-    });
-    const emailPerson = await User.findOne({ email }).exec();
-    if (emailPerson == null) return res.status(404);
-    return res.status(200).send(`This is ${email}'s webpage.`);
   } catch (err) {
     console.error('view error', err);
     return res.status(500).send({
@@ -130,7 +116,6 @@ module.exports = {
   view,
   login,
   signup,
-  authenticate,
   edit,
   remove,
 };
